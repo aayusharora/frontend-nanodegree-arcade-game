@@ -29,6 +29,7 @@ var Engine = (function(global) {
     canvas.height = 606;
     doc.body.appendChild(canvas);
 
+
     /* This function serves as the kickoff point for the game loop itself
      * and handles properly calling the update and render methods.
      */
@@ -39,6 +40,7 @@ var Engine = (function(global) {
          * would be the same for everyone (regardless of how fast their
          * computer is) - hurray time!
          */
+
         var now = Date.now(),
             dt = (now - lastTime) / 1000.0;
 
@@ -69,6 +71,12 @@ var Engine = (function(global) {
         main();
     }
 
+    function setOffscreen() {
+        for( i=0; i<allEnemies.length; i++) {
+            //allEnemies[i].x = allEnemies[i].x + 600;
+        }
+    }
+
     /* This function is called by main (our game loop) and itself calls all
      * of the functions which may need to update entity's data. Based on how
      * you implement your collision detection (when two entities occupy the
@@ -79,8 +87,31 @@ var Engine = (function(global) {
      * on the entities themselves within your app.js file).
      */
     function update(dt) {
-        updateEntities(dt);
-        // checkCollisions();
+
+        if(player.pause) {
+            updateEntities(dt);
+        }
+       
+         checkCollisions();
+         gameState();
+    }
+
+    function checkCollisions() {
+
+        var rect1 = player;
+        for(i=0; i < allEnemies.length; i++) {
+           
+                var rect2 = allEnemies[i];
+           
+            if (rect1.x < rect2.x + rect2.width &&
+                rect1.x + rect1.width > rect2.x &&
+                rect1.y < rect2.y + rect2.height &&
+                rect1.height + rect1.y > rect2.y) {
+                
+                playerlose();
+            }
+         }
+
     }
 
     /* This is called by the update function and loops through all of the
@@ -90,11 +121,15 @@ var Engine = (function(global) {
      * the data/properties related to the object. Do your drawing in your
      * render methods.
      */
+
     function updateEntities(dt) {
+
         allEnemies.forEach(function(enemy) {
-            enemy.update(dt);
+
+           enemy.update(dt);
         });
         player.update();
+        player.scoreBoard(-10);
     }
 
     /* This function initially draws the "game level", it will then call
@@ -143,25 +178,65 @@ var Engine = (function(global) {
      * tick. Its purpose is to then call the render functions you have defined
      * on your enemy and player entities within app.js
      */
-    function renderEntities() {
+    function renderEntities () {
         /* Loop through all of the objects within the allEnemies array and call
          * the render function you have defined.
          */
         allEnemies.forEach(function(enemy) {
+            //console.log(enemy);
             enemy.render();
         });
 
         player.render();
     }
 
+    function gameState () {
+        var endgame = false;
+        if(player.y < 0 && player.score >= 0) {
+            
+            endgame = true;
+        } 
+
+        if(player.score <=0 && player.y > 20) {
+            playerlose();
+        }
+
+        if(endgame) {
+             ctx.clearRect(10, 30, 500, 300);
+            ctx.font = "20px Ariel";
+            ctx.strokeText("You Win", 20, 30);
+            player.pause = false;  
+        }
+
+    }
+
+    function playerlose() {
+        ctx.clearRect(10, 30, 500, 300);
+        ctx.font = "20px Ariel";
+        ctx.strokeText("You Lose", 20, 30);
+        player.pause = false;
+    }
+
     /* This function does nothing but it could have been a good place to
      * handle game reset states - maybe a new game menu or a game over screen
-     * those sorts of things. It's only called once by the init() method.
+     * those sorts of thaings. It's only called once by the init() method.
      */
     function reset() {
         // noop
+        //setOffscreen();
+        player.x = 210;
+        player.y = 390; 
+        //ctx.clearRect(10, 30, 500, 300); 
+        player.score = 5000;
+        player.pause = true;
+        //this.pause = true;
+        //allEnemies =[];
     }
-
+  
+    document.getElementById("start").addEventListener("click", function(){
+        reset();
+    });
+   
     /* Go ahead and load all of the images we know we're going to need to
      * draw our game level. Then set init as the callback method, so that when
      * all of these images are properly loaded our game will start.
