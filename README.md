@@ -1,11 +1,11 @@
-frontend-nanodegree-arcade-game
+frontend-nanodegree-Game
 ===============================
 # About
 
- ## Beat-the-Time
+## Beat-the-Time
  This is the arcade game under Udacity Nanodegree Work. This provides a game in which the player has to reach from grass to water in the given time without colliding with moving bugs in the field.
 
- ## How to play
+## How to play
  - Use ( <code>&uarr;</code>, <code>&darr;</code>, <code>&larr;</code>, <code>&rarr;</code> ) to move the player
  - Use `spacebar` to `pause/resume` the game.
  - Click `Start` to start a new game.
